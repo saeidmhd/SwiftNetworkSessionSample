@@ -28,7 +28,6 @@ class ViewController: UIViewController {
   
     func makeGetCall() {
         
-        let AppSign2 = ""
         let AppSign = ""
         let jsonString = ""
         let methodName = "ValidateUser"
