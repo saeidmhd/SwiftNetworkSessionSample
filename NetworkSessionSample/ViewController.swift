@@ -8,11 +8,19 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController,XMLParserDelegate {
     
     
     
-    var parser = XMLParser()
+    
+     var currentElementName:String = ""
+     var elementValue: String = ""
+     var parser = XMLParser()
+    
+    
+    
+    
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,11 +33,12 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-  
+    
     func makeGetCall() {
         
-        let AppSign = ""
-        let jsonString = ""
+        
+        let AppSign = "05b14e27-f2cd-4329-8269-cbc62b182e78"
+        let jsonString = " [{\"Username\":\"\",\"Password\":\"\"}]"
         let methodName = "ValidateUser"
         
         let text = String(format: "<?xml version='1.0' encoding='utf-8'?><soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><%@ xmlns='http://tempuri.org/'><AppSign>%d</AppSign><jsonString>%@</jsonString></%@></soap:Body></soap:Envelope>", methodName, AppSign, jsonString, methodName)
@@ -50,15 +59,54 @@ class ViewController: UIViewController {
         let task =  session.dataTask(with: request) { (data, resp, error) in
             
             if let data = data {
-                if let stringData = String(data: data, encoding: String.Encoding.utf8) {
-                    print(stringData) //JSONSerialization
-                }
+                
+                let xmlParser = XMLParser(data: data as Data)
+                xmlParser.delegate = self
+                xmlParser.parse()
             }
         }
         task.resume()
+        
         }
     
-
+    
+    func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
+        self.elementValue = "";
+        currentElementName = elementName
+    }
+    
+    
+    func parserDidEndDocument(_ parser: XMLParser) {
+        
+        let jsonStr = elementValue
+        
+        var dictonary:NSDictionary?
+        
+        if let data = jsonStr.data(using: String.Encoding.utf8) {
+            
+            do {
+                dictonary = try JSONSerialization.jsonObject(with: data, options: []) as? [String:AnyObject] as NSDictionary?
+                
+                if let dictonary = dictonary
+                {
+                    let userObject = Json4Swift_Base(dictionary:dictonary)
+                    print(userObject!.userInfo![0].firstName!)
+                }
+            } catch let error as NSError {
+                print(error)
+            }
+        }
+        
+        //print(jsonStr)
+        
+        
+    }
+    
+    func parser(_ parser: XMLParser, foundCharacters string: String) {
+        if currentElementName == "ValidateUserResult" {
+            self.elementValue += string
+        }
+    }
     
     
     }
