@@ -8,24 +8,33 @@
 
 import UIKit
 
-class ViewController: UIViewController,XMLParserDelegate {
+class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,URLSessionDelegate {
+    
+
+    @IBOutlet weak var idicator: UIActivityIndicatorView!
+    
+
+    
+    @IBOutlet weak var FirstName: UILabel!
+   
     
     
-    
+
     
      var currentElementName:String = ""
      var elementValue: String = ""
      var parser = XMLParser()
+     var expectedContentLength = 0
+     var buffer:NSMutableData = NSMutableData()
     
     
-    
-    
-    
-
     override func viewDidLoad() {
         super.viewDidLoad()
           makeGetCall()
         // Do any additional setup after loading the view, typically from a nib.
+        
+       
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -37,8 +46,9 @@ class ViewController: UIViewController,XMLParserDelegate {
     func makeGetCall() {
         
         
+        
         let AppSign = "05b14e27-f2cd-4329-8269-cbc62b182e78"
-        let jsonString = " [{\"Username\":\"\",\"Password\":\"\"}]"
+        let jsonString = " [{\"Username\":\"ajdari.j@chmail.com\",\"Password\":\"252579\"}]"
         let methodName = "ValidateUser"
         
         let text = String(format: "<?xml version='1.0' encoding='utf-8'?><soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><%@ xmlns='http://tempuri.org/'><AppSign>%d</AppSign><jsonString>%@</jsonString></%@></soap:Body></soap:Envelope>", methodName, AppSign, jsonString, methodName)
@@ -56,18 +66,31 @@ class ViewController: UIViewController,XMLParserDelegate {
         
         let session = URLSession.shared // or let session = URLSession(configuration: URLSessionConfiguration.default)
         
+        self.idicator.startAnimating()
+        
+        
         let task =  session.dataTask(with: request) { (data, resp, error) in
             
+            
+            
             if let data = data {
+                
+                
                 
                 let xmlParser = XMLParser(data: data as Data)
                 xmlParser.delegate = self
                 xmlParser.parse()
             }
         }
+        
+        
         task.resume()
         
+        
         }
+    
+    
+    
     
     
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
@@ -91,14 +114,23 @@ class ViewController: UIViewController,XMLParserDelegate {
                 {
                     let userObject = Json4Swift_Base(dictionary:dictonary)
                     print(userObject!.userInfo![0].firstName!)
+                    
+                    DispatchQueue.main.async {
+                        
+                        self.FirstName.text = userObject!.userInfo![0].firstName!
+                        self.FirstName.textAlignment = .right
+                        self.idicator.stopAnimating()
+                      
+                        
+                    }
+                    
+                   
+                    
                 }
             } catch let error as NSError {
                 print(error)
             }
         }
-        
-        //print(jsonStr)
-        
         
     }
     
