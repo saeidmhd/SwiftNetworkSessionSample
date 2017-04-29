@@ -11,15 +11,19 @@ import UIKit
 class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,URLSessionDelegate {
     
 
-    @IBOutlet weak var idicator: UIActivityIndicatorView!
+   // @IBOutlet weak var idicator: UIActivityIndicatorView!
     
-
     
     @IBOutlet weak var FirstName: UILabel!
    
+    @IBOutlet weak var loginBtn: UIButton!
     
+    @IBAction func loginBtn(_ sender: UIButton) {
+    }
     
-
+    @IBOutlet weak var password: UITextField!
+    
+    @IBOutlet weak var username: UITextField!
     
      var currentElementName:String = ""
      var elementValue: String = ""
@@ -32,6 +36,33 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
         super.viewDidLoad()
           makeGetCall()
         // Do any additional setup after loading the view, typically from a nib.
+        
+       
+        let pass_border = CALayer()
+        let pass_width = CGFloat(2.0)
+        pass_border.borderColor = UIColor.white.cgColor
+        pass_border.frame = CGRect(x: 0, y: password.frame.size.height - pass_width, width:  password.frame.size.width, height: password.frame.size.height)
+        pass_border.borderWidth = pass_width
+        password.layer.addSublayer(pass_border)
+        password.layer.masksToBounds = true
+        
+        
+        let username_border = CALayer()
+        let username_width = CGFloat(2.0)
+        username_border.borderColor = UIColor.white.cgColor
+        username_border.frame = CGRect(x: 0, y: username.frame.size.height - username_width, width:  username.frame.size.width, height: username.frame.size.height)
+        username_border.borderWidth = username_width
+        username.layer.addSublayer(username_border)
+        username.layer.masksToBounds = true
+        
+        
+        
+        loginBtn.backgroundColor = .clear
+        loginBtn.layer.cornerRadius = 15
+        loginBtn.layer.borderWidth = 2
+        loginBtn.layer.borderColor = UIColor.white.cgColor
+      //  loginBtn.contentHorizontalAlignment = .center
+        loginBtn.contentVerticalAlignment = .center
         
        
         
@@ -66,15 +97,13 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
         
         let session = URLSession.shared // or let session = URLSession(configuration: URLSessionConfiguration.default)
         
-        self.idicator.startAnimating()
+       // self.idicator.startAnimating()
         
         
         let task =  session.dataTask(with: request) { (data, resp, error) in
             
             
-            
             if let data = data {
-                
                 
                 
                 let xmlParser = XMLParser(data: data as Data)
@@ -83,14 +112,9 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
             }
         }
         
-        
         task.resume()
         
-        
         }
-    
-    
-    
     
     
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
@@ -117,14 +141,12 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
                     
                     DispatchQueue.main.async {
                         
-                        self.FirstName.text = userObject!.userInfo![0].firstName!
-                        self.FirstName.textAlignment = .right
-                        self.idicator.stopAnimating()
-                      
+                       // self.FirstName.text = userObject!.userInfo![0].firstName!
+                       // self.FirstName.textAlignment = .right
+                      //  self.idicator.stopAnimating()
                         
                     }
                     
-                   
                     
                 }
             } catch let error as NSError {
