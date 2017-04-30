@@ -8,10 +8,14 @@
 
 import UIKit
 
-class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,URLSessionDelegate {
+class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,URLSessionDelegate,UITextFieldDelegate {
     
 
    // @IBOutlet weak var idicator: UIActivityIndicatorView!
+    
+    var userObject: Json4Swift_Base! = nil
+    
+    
     
     
     @IBOutlet weak var FirstName: UILabel!
@@ -19,6 +23,25 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
     @IBOutlet weak var loginBtn: UIButton!
     
     @IBAction func loginBtn(_ sender: UIButton) {
+        
+        if self.username.text == "" || self.password.text == "" {
+            
+            //Alert to tell the user that there was an error because they didn't fill anything in the textfields because they didn't fill anything in
+            
+            let alertController = UIAlertController(title: "خطا", message: "لطفا ایمیل و رمز عبور خود را وارد کنید", preferredStyle: .alert)
+            
+            let defaultAction = UIAlertAction(title: "باشه!", style: .cancel, handler: nil)
+            alertController.addAction(defaultAction)
+            
+            self.present(alertController, animated: true, completion: nil)
+            
+        }else {
+        
+        
+        
+        
+        }
+        
     }
     
     @IBOutlet weak var password: UITextField!
@@ -30,6 +53,7 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
      var parser = XMLParser()
      var expectedContentLength = 0
      var buffer:NSMutableData = NSMutableData()
+     var placeholder : UILabel!
     
     
     override func viewDidLoad() {
@@ -54,8 +78,11 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
         username_border.borderWidth = username_width
         username.layer.addSublayer(username_border)
         username.layer.masksToBounds = true
+        username.delegate = self;
         
+       
         
+    
         
         loginBtn.backgroundColor = .clear
         loginBtn.layer.cornerRadius = 15
@@ -79,7 +106,7 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
         
         
         let AppSign = "05b14e27-f2cd-4329-8269-cbc62b182e78"
-        let jsonString = " [{\"Username\":\"\",\"Password\":\"\"}]"
+        let jsonString = "[{\"Username\":\"\",\"Password\":\"\"}]"
         let methodName = "ValidateUser"
         
         let text = String(format: "<?xml version='1.0' encoding='utf-8'?><soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><%@ xmlns='http://tempuri.org/'><AppSign>%d</AppSign><jsonString>%@</jsonString></%@></soap:Body></soap:Envelope>", methodName, AppSign, jsonString, methodName)
@@ -136,7 +163,7 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
                 
                 if let dictonary = dictonary
                 {
-                    let userObject = Json4Swift_Base(dictionary:dictonary)
+                    userObject = Json4Swift_Base(dictionary:dictonary)
                     print(userObject!.userInfo![0].firstName!)
                     
                     DispatchQueue.main.async {
@@ -159,6 +186,22 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
     func parser(_ parser: XMLParser, foundCharacters string: String) {
         if currentElementName == "ValidateUserResult" {
             self.elementValue += string
+        }
+    }
+    
+   
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        if username.text == "" {
+        }
+        username.textAlignment = .left
+        username.placeholder=""
+        return true
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if username.text == "" {
+            username.textAlignment = .right
+            username.placeholder="شناسه محک/ایمیل/شماره بسته"
         }
     }
     
