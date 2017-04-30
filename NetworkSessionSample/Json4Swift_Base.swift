@@ -4,7 +4,7 @@ import Foundation
 
 
 public class Json4Swift_Base {
-	public var result : Bool?
+	public var result : String?
 	public var msg : String?
 	public var userInfo : Array<UserInfo>?
 	public var packInfo : Array<PackInfo>?
@@ -42,7 +42,7 @@ public class Json4Swift_Base {
 */
 	required public init?(dictionary: NSDictionary) {
 
-		result = dictionary["result"] as? Bool
+		result = dictionary["result"] as? String
 		msg = dictionary["msg"] as? String
 		if (dictionary["UserInfo"] != nil) { userInfo = UserInfo.modelsFromDictionaryArray(array: dictionary["UserInfo"] as! NSArray) }
 		if (dictionary["PackInfo"] != nil) { packInfo = PackInfo.modelsFromDictionaryArray(array: dictionary["PackInfo"] as! NSArray) }

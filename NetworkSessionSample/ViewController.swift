@@ -14,7 +14,9 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
    // @IBOutlet weak var idicator: UIActivityIndicatorView!
     
     var userObject: Json4Swift_Base! = nil
+    var MyuserObject: Json4Swift_Base! = nil
     
+    @IBOutlet weak var indicator: UIActivityIndicatorView!
     
     
     
@@ -35,10 +37,13 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
             
             self.present(alertController, animated: true, completion: nil)
             
+            
         }else {
-        
-        
-        
+           
+        makeGetCall(username: self.username.text!,password: self.password.text!)
+           // print(MyuserObject!.userInfo![0].firstName!)
+            
+            
         
         }
         
@@ -47,6 +52,8 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
     @IBOutlet weak var password: UITextField!
     
     @IBOutlet weak var username: UITextField!
+    
+    
     
      var currentElementName:String = ""
      var elementValue: String = ""
@@ -58,10 +65,10 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-          makeGetCall()
+        //  makeGetCall()
         // Do any additional setup after loading the view, typically from a nib.
         
-       
+    
         let pass_border = CALayer()
         let pass_width = CGFloat(2.0)
         pass_border.borderColor = UIColor.white.cgColor
@@ -101,12 +108,12 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
     }
     
     
-    func makeGetCall() {
-        
+    func makeGetCall(username:String, password:String) {
         
         
         let AppSign = "05b14e27-f2cd-4329-8269-cbc62b182e78"
-        let jsonString = "[{\"Username\":\"\",\"Password\":\"\"}]"
+        let jsonString = "[{\"Username\":\"" + username + "\",\"Password\":\"" + password + "\"}]";
+       
         let methodName = "ValidateUser"
         
         let text = String(format: "<?xml version='1.0' encoding='utf-8'?><soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><%@ xmlns='http://tempuri.org/'><AppSign>%d</AppSign><jsonString>%@</jsonString></%@></soap:Body></soap:Envelope>", methodName, AppSign, jsonString, methodName)
@@ -124,7 +131,8 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
         
         let session = URLSession.shared // or let session = URLSession(configuration: URLSessionConfiguration.default)
         
-       // self.idicator.startAnimating()
+        self.indicator.startAnimating()
+        
         
         
         let task =  session.dataTask(with: request) { (data, resp, error) in
@@ -163,14 +171,44 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
                 
                 if let dictonary = dictonary
                 {
-                    userObject = Json4Swift_Base(dictionary:dictonary)
-                    print(userObject!.userInfo![0].firstName!)
+                    let userObject = Json4Swift_Base(dictionary:dictonary)
+                    
                     
                     DispatchQueue.main.async {
                         
                        // self.FirstName.text = userObject!.userInfo![0].firstName!
                        // self.FirstName.textAlignment = .right
-                      //  self.idicator.stopAnimating()
+                        
+                        self.indicator.stopAnimating()
+                        self.MyuserObject = userObject
+                        
+                        if self.MyuserObject!.result! == "True"{
+                        
+                            print(self.MyuserObject!.result!)
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "ResultView")
+                            self.present(vc!, animated: true, completion: nil)
+                        
+                        } else {
+                        
+                        
+                            //Tells the user that there is an error and then gets firebase to tell them the error
+                            let alertController = UIAlertController(title: "خطا", message: "کاربری با این مشخصات ثبت نشده است", preferredStyle: .alert)
+                            
+                            let defaultAction = UIAlertAction(title: "فهمیدم!", style: .cancel, handler: nil)
+                            alertController.addAction(defaultAction)
+                            
+                            self.present(alertController, animated: true, completion: nil)
+                            self.username.resignFirstResponder()
+                            self.username.becomeFirstResponder()
+                            self.username.text = ""
+                            self.password.text = ""
+                            
+                        
+                        }
+                        
+                        
+                        
+                       
                         
                     }
                     
@@ -205,6 +243,18 @@ class ViewController: UIViewController,XMLParserDelegate,URLSessionDataDelegate,
         }
     }
     
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        MyuserObject = userObject
+    }
+    
+    func isEmailValid(email: String) -> Bool {
+        
+       return (email.lowercased().range(of:"@") != nil)
+        
+    }
+    
+   
+
     
     }
 
